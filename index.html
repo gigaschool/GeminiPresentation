@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>驚異のハンター！カマキリの知られざる生態</title>
+    <!-- jsPDF and html2canvas libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Roboto:wght@400;700&display=swap');
+
+        :root {
+            --bg-color: #1a1a1a; /* ダークグレー */
+            --text-color: #f0f0f0; /* 明るいグレー */
+            --accent-color: #4CAF50; /* カマキリっぽい緑 */
+            --accent-hover: #66BB6A;
+            --slide-bg: #2a2a2a;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            padding: 20px; /* Add padding around the content */
+        }
+
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            max-width: 960px; /* Adjust max-width as needed */
+            background-color: var(--slide-bg);
+            overflow: hidden;
+            aspect-ratio: 16 / 9; /* Maintain 16:9 aspect ratio */
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px; /* Space between slide and controls */
+        }
+
+        .slide {
+            display: none; /* Hide all slides initially */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 5%; /* Padding inside the slide */
+            box-sizing: border-box;
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+            display: flex; /* Use flexbox for layout */
+            flex-direction: column; /* Default: text top, image bottom */
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .slide.active {
+            display: flex; /* Show active slide using flex */
+            opacity: 1;
+        }
+
+        /* Layout variations */
+        .slide.layout-split {
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: center;
+            text-align: left;
+        }
+        .slide.layout-split .slide-content {
+            width: 55%;
+        }
+        .slide.layout-split .slide-image {
+            width: 40%;
+            max-height: 80%; /* Limit image height in split layout */
+        }
+
+        .slide.layout-image-bg {
+            background-size: cover;
+            background-position: center;
+            color: white; /* Ensure text is visible on image */
+            text-shadow: 0 0 10px rgba(0,0,0,0.8); /* Add shadow for readability */
+        }
+        .slide.layout-image-bg .slide-content {
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background for text */
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .slide h2 {
+            font-size: 2.5rem; /* Responsive font size base */
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .slide h3 {
+            font-size: 1.8rem;
+            color: var(--text-color);
+            margin-bottom: 0.8rem;
+            font-weight: 700;
+        }
+
+        .slide p, .slide ul {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .slide ul {
+            list-style: disc;
+            padding-left: 25px;
+            text-align: left; /* Align list items left */
+            max-width: 90%; /* Limit list width for center alignment */
+            margin: 1rem auto;
+        }
+        .slide.layout-split ul {
+            margin: 1rem 0;
+            max-width: 100%;
+        }
+
+        .slide img {
+            display: block;
+            max-width: 90%; /* Limit image width within slide */
+            max-height: 50%; /* Limit image height */
+            height: auto;
+            margin: 1rem auto; /* Center image */
+            border-radius: 5px;
+            object-fit: contain; /* Ensure image fits without distortion */
+        }
+        .slide.layout-split img {
+            max-width: 100%;
+            max-height: 100%;
+            margin: 0;
+        }
+
+
+        .slide-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap; /* Allow buttons to wrap on small screens */
+            gap: 15px; /* Space between buttons */
+        }
+
+        .slide-controls button {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .slide-controls button:hover {
+            background-color: var(--accent-hover);
+        }
+        .slide-controls button:active {
+            transform: translateY(1px);
+        }
+
+        .slide-controls button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        #pdf-button {
+            background-color: #f44336; /* Red for PDF */
+            color: white;
+        }
+        #pdf-button:hover {
+             background-color: #e53935;
+        }
+        #pdf-button.loading {
+            background-color: #ffa726; /* Orange while loading */
+            cursor: wait;
+        }
+        #pdf-button.loading::after {
+            content: ' 中...';
+        }
+
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .slide h2 { font-size: 2rem; }
+            .slide h3 { font-size: 1.5rem; }
+            .slide p, .slide ul { font-size: 1rem; }
+            .slide.layout-split { flex-direction: column; text-align: center; }
+            .slide.layout-split .slide-content,
+            .slide.layout-split .slide-image { width: 90%; margin-bottom: 1rem; }
+            .slide.layout-split .slide-image { max-height: 40%; }
+            .slide img { max-height: 40%; } /* Adjust image height on smaller screens */
+            .slide ul { padding-left: 20px; }
+             .slide-controls button { padding: 10px 20px; font-size: 0.9rem; }
+        }
+
+         @media (max-width: 480px) {
+            body { padding: 10px; }
+            .slideshow-container { max-width: 100%; border-radius: 5px;}
+            .slide h2 { font-size: 1.6rem; }
+            .slide h3 { font-size: 1.3rem; }
+            .slide p, .slide ul { font-size: 0.9rem; }
+            .slide { padding: 3%; }
+             .slide-controls button { padding: 8px 15px; font-size: 0.8rem; }
+             .slide-controls { gap: 10px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>驚異のハンター！カマキリの知られざる生態</h1>
+
+    <div class="slideshow-container">
+
+        <!-- Slide 1: Title -->
+        <div class="slide active layout-image-bg" style="background-image: url('https://via.placeholder.com/960x540/000000/4CAF50?text=Praying+Mantis+Silhouette');">
+            <!-- 画像: カマキリのシルエットや印象的な写真 (例: https://images.unsplash.com/photo-1588410664801-7e2a52c35b9e) -->
+            <div class="slide-content">
+                <h2>驚異のハンター！<br>カマキリの知られざる生態</h2>
+                <h3>～身近なスーパープレデターの秘密～</h3>
+            </div>
+        </div>
+
+        <!-- Slide 2: Introduction -->
+        <div class="slide">
+             <div class="slide-content">
+                <h2>導入：静かなる暗殺者、登場</h2>
+                <p>皆さんが「カマキリ」と聞いて思い浮かべるのは？<br>祈る姿？ 共食い？ 緑色の虫？</p>
+                <p>その姿の裏には、驚くべき能力と計算された戦略が隠されています。</p>
+                <p>このプレゼンでは、カマキリの狩りの技術、驚きの擬態、意外な一面に迫ります！</p>
+                 <!-- 画像: 獲物を捕らえるカマキリ (例: https://images.pexels.com/photos/162338/mantis-green-meadow-macro-162338.jpeg) -->
+                <img src="https://via.placeholder.com/600x338/333333/FFFFFF?text=Catching+Prey" alt="獲物を捕らえるカマキリ">
+            </div>
+        </div>
+
+        <!-- Slide 3: Basic Info 1 (layout-split) -->
+        <div class="slide layout-split">
+            <div class="slide-content">
+                <h2>「カマキリ」ってどんな虫？ ①</h2>
+                <h3>基本情報と多様性</h3>
+                <ul>
+                    <li>世界に約2400種、日本には十数種</li>
+                    <li>大きさ、色、形は非常に多様</li>
+                    <li>バッタやゴキブリに近い仲間（網翅目）</li>
+                </ul>
+                <p>身近な昆虫ですが、その多様性は驚くほどです。</p>
+            </div>
+             <!-- 画像: 様々な種類のカマキリ (例: コラージュ画像) -->
+             <div class="slide-image">
+                <img src="https://via.placeholder.com/600x400/555555/FFFFFF?text=Various+Mantis+Species" alt="様々なカマキリ">
+            </div>
+        </div>
+
+         <!-- Slide 4: Basic Info 2 (layout-split) -->
+        <div class="slide layout-split">
+            <div class="slide-content">
+                <h2>「カマキリ」ってどんな虫？ ②</h2>
+                <h3>驚きの身体能力</h3>
+                <ul>
+                    <li><strong>三角形の頭部と複眼：</strong> 180°近く回転、立体視で距離を正確に把握。</li>
+                    <li><strong>鎌状の前脚（捕獲脚）：</strong> 鋭いトゲで獲物をがっちりホールド。捕獲速度はわずかコンマ数秒！</li>
+                    <li><strong>翅（はね）：</strong> 飛べる種、あまり飛ばない種がいる。移動や威嚇に使用。</li>
+                </ul>
+            </div>
+             <!-- 画像: カマキリの頭部や前脚のクローズアップ (例: https://images.pexels.com/photos/56763/pexels-photo-56763.jpeg) -->
+             <div class="slide-image">
+                 <img src="https://via.placeholder.com/600x400/555555/FFFFFF?text=Mantis+Head+and+Forelegs" alt="カマキリの頭部と前脚">
+             </div>
+        </div>
+
+        <!-- Slide 5: Hunting 1 -->
+        <div class="slide">
+             <div class="slide-content">
+                <h2>卓越した狩りの技術 ①</h2>
+                <h3>待ち伏せと擬態の達人</h3>
+                 <p>基本戦略は「待ち伏せ（アンブッシュ）」。<br>静かに獲物が近づくのを待ち、射程距離に入った瞬間に電光石火の速さで捕らえます。</p>
+                <!-- 画像: 葉の上で待ち伏せするカマキリ (例: https://images.unsplash.com/photo-1611542960064-ec45c5a7a6ce) -->
+                <img src="https://via.placeholder.com/700x394/333333/FFFFFF?text=Ambush+Predator" alt="待ち伏せするカマキリ">
+            </div>
+        </div>
+
+         <!-- Slide 6: Hunting 2 (layout-split) -->
+        <div class="slide layout-split">
+            <div class="slide-content">
+                <h2>卓越した狩りの技術 ②</h2>
+                <h3>驚異の擬態</h3>
+                <p><strong>保護色：</strong> 緑の葉、茶色の枯れ葉や枝に完璧に溶け込みます。</p>
+                <p><strong>形態擬態：</strong></p>
+                 <ul>
+                    <li><strong>ハナカマキリ：</strong> 蘭の花そっくり！</li>
+                    <li><strong>カレエダカマキリ：</strong> まるで枯れた小枝！</li>
+                </ul>
+                <p>狩りのため、そして身を守るための究極のカムフラージュです。</p>
+                <p style="font-style: italic; font-size: 0.9em;">（右の写真、どこにいるかわかりますか？）</p>
+            </div>
+             <!-- 画像: 擬態しているカマキリ (例: ハナカマキリやカレエダカマキリ https://images.pexels.com/photos/4754654/pexels-photo-4754654.jpeg) -->
+             <div class="slide-image">
+                 <img src="https://via.placeholder.com/600x400/555555/FFFFFF?text=Amazing+Camouflage+(Orchid+Mantis)" alt="擬態するカマキリ（ハナカマキリ）">
+            </div>
+        </div>
+
+         <!-- Slide 7: Hunting 3 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>卓越した狩りの技術 ③</h2>
+                <h3>驚きの食性</h3>
+                <p>主食は昆虫類（バッタ、チョウ、ハエなど）ですが…</p>
+                <p>時には、自分より大きな獲物を捕らえることも！</p>
+                <ul>
+                    <li>小型のトカゲやカエル</li>
+                    <li>ハチドリなどの小型の鳥類</li>
+                    <li>他のカマキリ（共食い）</li>
+                </ul>
+                <p>まさに生態系のトッププレデター（捕食者）の一員です。</p>
+                 <!-- 画像: カマキリが大きめの獲物を捕食しているイメージ (注意: ショッキングでないもの) -->
+                <img src="https://via.placeholder.com/700x394/333333/FFFFFF?text=Wide+Range+of+Prey" alt="カマキリの多様な獲物">
+            </div>
+        </div>
+
+         <!-- Slide 8: Life Cycle 1 (layout-split) -->
+        <div class="slide layout-split">
+            <div class="slide-content">
+                <h2>卵から成虫へ ①</h2>
+                <h3>卵鞘（らんしょう）</h3>
+                <ul>
+                    <li>泡状の塊の中に数百個の卵</li>
+                    <li>木の枝や壁などに産み付けられる</li>
+                    <li>断熱性と保護機能があり、冬を越す</li>
+                    <li>種類によって形が異なる</li>
+                </ul>
+                <p>この中に、次の世代の小さなハンターたちが眠っています。</p>
+            </div>
+            <!-- 画像: カマキリの卵鞘 (例: https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Mantis_egg_case_in_Japan_Nov_2017.jpg/1280px-Mantis_egg_case_in_Japan_Nov_2017.jpg) -->
+            <div class="slide-image">
+                <img src="https://via.placeholder.com/600x400/555555/FFFFFF?text=Mantis+Ootheca+(Egg+Case)" alt="カマキリの卵鞘">
+            </div>
+        </div>
+
+        <!-- Slide 9: Life Cycle 2 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>卵から成虫へ ②</h2>
+                <h3>孵化と成長</h3>
+                <p>春になると、数百匹の幼虫が一斉に孵化！<br>生まれたての幼虫はとても小さく、アリに似ていることも。</p>
+                <p><strong>不完全変態：</strong> サナギにならず、脱皮を繰り返して成虫になります（通常5～8回）。</p>
+                <p>脱皮直後は体が柔らかく、無防備な試練の時です。</p>
+                <p>寿命は多くの種で1年以内。</p>
+                 <!-- 画像: 孵化したばかりの幼虫や脱皮の様子 -->
+                <img src="https://via.placeholder.com/700x394/333333/FFFFFF?text=Hatching+and+Molting" alt="孵化と脱皮">
+            </div>
+        </div>
+
+        <!-- Slide 10: Survival Strategy 1 (layout-split) -->
+        <div class="slide layout-split">
+             <div class="slide-content">
+                <h2>生存戦略 ①</h2>
+                <h3>共食い（カニバリズム）</h3>
+                <p>特に有名なのが、交尾時のメスによるオス捕食。</p>
+                <p><strong>なぜ起こる？</strong></p>
+                 <ul>
+                    <li>メスが産卵のための栄養を得るため（有力説）</li>
+                    <li>空腹時や、オスが不用意に近づいた場合など</li>
+                    <li>必ずしも起こるわけではなく、種による差も大きい</li>
+                </ul>
+                <p>センセーショナルなイメージがありますが、生存のための合理的な戦略とも考えられています。</p>
+            </div>
+             <!-- 画像: 交尾中のカマキリ（共食いでない穏やかなもの） -->
+             <div class="slide-image">
+                 <img src="https://via.placeholder.com/600x400/555555/FFFFFF?text=Mating+Mantis" alt="交尾するカマキリ">
+            </div>
+        </div>
+
+         <!-- Slide 11: Survival Strategy 2 -->
+        <div class="slide">
+             <div class="slide-content">
+                <h2>生存戦略 ②</h2>
+                <h3>天敵と防御行動</h3>
+                <p>カマキリとて万能ではありません。多くの天敵がいます。</p>
+                <ul>
+                    <li>鳥類、爬虫類（トカゲなど）</li>
+                    <li>大型のクモ、他の肉食昆虫</li>
+                    <li>時には哺乳類も</li>
+                </ul>
+                 <p><strong>身を守るには？</strong></p>
+                 <ul>
+                    <li><strong>威嚇：</strong> 翅を広げ、鎌を掲げて体を大きく見せる！</li>
+                    <li><strong>擬態・保護色：</strong> 敵の目をごまかす。</li>
+                    <li><strong>逃走：</strong> 素早く飛び去る、または隠れる。</li>
+                </ul>
+            </div>
+             <!-- 画像: 威嚇するカマキリ (例: https://images.pexels.com/photos/1051449/pexels-photo-1051449.jpeg) -->
+            <img src="https://via.placeholder.com/700x394/333333/FFFFFF?text=Defensive+Display" alt="威嚇するカマキリ">
+        </div>
+
+         <!-- Slide 12: Relationship with Us -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>カマキリと私たち</h2>
+                <h3>自然界での役割と観察のすすめ</h3>
+                 <ul>
+                    <li><strong>益虫として：</strong> 庭や畑の害虫（アブラムシ、バッタ等）を食べてくれる。</li>
+                    <li><strong>生態系のバランサー：</strong> 捕食者として重要な役割を担う。</li>
+                    <li><strong>文化：</strong> 蟷螂拳（とうろうけん）など武術のモデルにも。</li>
+                </ul>
+                <p>公園や草むらなど、意外と身近に生息しています。<br>見つけたら、そっと観察してみませんか？<br>（※むやみに捕まえたり、傷つけたりしないでくださいね）</p>
+                 <!-- 画像: 草むらにいるカマキリや、子供が観察しているイメージ -->
+                <img src="https://via.placeholder.com/700x394/333333/FFFFFF?text=Observing+Mantis+in+Nature" alt="自然の中のカマキリ">
+            </div>
+        </div>
+
+        <!-- Slide 13: Conclusion -->
+        <div class="slide layout-image-bg" style="background-image: url('https://via.placeholder.com/960x540/000000/4CAF50?text=Thank+You');">
+             <!-- 画像: 美しいカマキリの写真 (例: 夕日を背景に、など https://images.unsplash.com/photo-1529025609349-7807305b39c1) -->
+             <div class="slide-content">
+                <h2>まとめ：カマキリの魅力再発見</h2>
+                <p>カマキリは、ただ怖いだけの虫ではありません。</p>
+                <ul>
+                    <li>卓越した狩りの技術</li>
+                    <li>驚異的な擬態能力</li>
+                    <li>計算された身体構造</li>
+                    <li>生態系における重要な役割</li>
+                </ul>
+                 <p>彼らは、厳しい自然を生き抜く知恵と能力を備えた、魅力あふれる生き物です。</p>
+                 <p style="margin-top: 2rem; font-weight: bold;">ご清聴ありがとうございました。</p>
+             </div>
+        </div>
+
+        <!-- Add more slides here following the structure -->
+
+    </div>
+
+    <div class="slide-controls">
+        <button id="prev-button" onclick="changeSlide(-1)" disabled>« 前へ</button>
+        <span id="slide-counter">1 / 13</span>
+        <button id="next-button" onclick="changeSlide(1)">次へ »</button>
+        <button id="pdf-button" onclick="downloadPdf()">PDFでダウンロード</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slideshow-container .slide');
+        const totalSlides = slides.length;
+        const prevButton = document.getElementById('prev-button');
+        const nextButton = document.getElementById('next-button');
+        const slideCounter = document.getElementById('slide-counter');
+        const pdfButton = document.getElementById('pdf-button');
+
+        function showSlide(index) {
+            // Hide all slides
+            slides.forEach(slide => {
+                // slide.style.display = 'none';
+                slide.classList.remove('active');
+            });
+
+            // Show the target slide
+            if (slides[index]) {
+                // slides[index].style.display = 'flex'; // Use flex as defined in CSS
+                 slides[index].classList.add('active');
+            }
+
+            // Update slide counter
+            slideCounter.textContent = `${index + 1} / ${totalSlides}`;
+
+            // Update button states
+            prevButton.disabled = (index === 0);
+            nextButton.disabled = (index === totalSlides - 1);
+        }
+
+        function changeSlide(direction) {
+            const newIndex = currentSlideIndex + direction;
+            if (newIndex >= 0 && newIndex < totalSlides) {
+                currentSlideIndex = newIndex;
+                showSlide(currentSlideIndex);
+            }
+        }
+
+        // Initialize the slideshow
+        showSlide(currentSlideIndex);
+
+        // PDF Download Functionality
+        async function downloadPdf() {
+            pdfButton.disabled = true;
+            pdfButton.classList.add('loading');
+            pdfButton.textContent = 'PDF生成'; // Update button text
+
+            const { jsPDF } = window.jspdf;
+            // Use A4 size and landscape orientation for 16:9 better fit (approx)
+            // A4 landscape: 297 x 210 mm
+            // 16:9 ratio means height = width * 9 / 16
+            const pdf = new jsPDF({
+                orientation: 'landscape',
+                unit: 'mm',
+                format: 'a4' // Using standard A4, content will be scaled
+            });
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const aspectRatio = 16 / 9;
+
+            // Calculate dimensions to fit 16:9 within A4 landscape
+            let imgWidth, imgHeight;
+            if (pdfWidth / pdfHeight >= aspectRatio) {
+                // Page is wider than 16:9 or equal, use full height
+                imgHeight = pdfHeight;
+                imgWidth = imgHeight * aspectRatio;
+            } else {
+                // Page is narrower than 16:9, use full width
+                imgWidth = pdfWidth;
+                imgHeight = imgWidth / aspectRatio;
+            }
+
+             // Center the image on the page
+            const x = (pdfWidth - imgWidth) / 2;
+            const y = (pdfHeight - imgHeight) / 2;
+
+
+            for (let i = 0; i < totalSlides; i++) {
+                const slideElement = slides[i];
+                // Temporarily make the slide visible for capture if needed
+                const wasActive = slideElement.classList.contains('active');
+                if (!wasActive) {
+                    // Ensure slide content is laid out correctly before capture
+                    // We might need a more robust way like cloning and rendering off-screen
+                     // For simplicity, just show it briefly (might cause flicker)
+                     slides.forEach(s => s.classList.remove('active'));
+                     slideElement.classList.add('active');
+                     // Allow slight delay for rendering - adjust if needed
+                     await new Promise(resolve => setTimeout(resolve, 100));
+                }
+
+                 try {
+                     const canvas = await html2canvas(slideElement, {
+                         scale: 2, // Increase resolution for better quality
+                         useCORS: true, // If using external images
+                         logging: false, // Suppress logs
+                         width: slideElement.offsetWidth, // Capture actual rendered width
+                         height: slideElement.offsetHeight // Capture actual rendered height
+                    });
+                    const imgData = canvas.toDataURL('image/png');
+
+                    if (i > 0) {
+                        pdf.addPage();
+                    }
+                    // Add image, scaling it to fit the 16:9 area calculated
+                    pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+
+                } catch (error) {
+                     console.error(`Error capturing slide ${i + 1}:`, error);
+                     // Add a placeholder or error message to the PDF page
+                     if (i > 0) pdf.addPage();
+                     pdf.text(`Error rendering slide ${i + 1}`, 10, 10);
+                 } finally {
+                    // Restore original visibility state if changed
+                     if (!wasActive) {
+                        slideElement.classList.remove('active');
+                     }
+                 }
+            }
+
+            // Restore the initially active slide
+            showSlide(currentSlideIndex);
+
+            pdf.save('カマキリの生態プレゼンテーション.pdf');
+
+            pdfButton.disabled = false;
+            pdfButton.classList.remove('loading');
+            pdfButton.textContent = 'PDFでダウンロード'; // Restore button text
+        }
+
+    </script>
+
+</body>
+</html>
